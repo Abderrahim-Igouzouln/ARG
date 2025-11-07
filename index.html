@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Association Argan</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chargement de Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- Placeholder e for Argan/Tifaout logo (replace with actual image) -->
+                    <img src="logo.jpg" alt="Logo Argan"
+                        style="width: 50px; height: 50px; border-radius:50%; object-fit: cover;">
+                </div>
+                <h1 id="app-title">Arg-Tifaout</h1>
+            </div>
+            <div class="menu-item active" data-page="dashboard"><span class="menu-icon">📊</span> <span>Tableau de
+                    bord</span>
+            </div>
+            <div class="menu-item" data-page="members"><span class="menu-icon">👥</span> <span>Membres</span>
+            </div>
+            <div class="menu-item" data-page="purchases"><span class="menu-icon">🛒</span> <span>Achats de fruits</span>
+            </div>
+            <div class="menu-item" data-page="production"><span class="menu-icon">⚙️</span> <span>Production</span>
+            </div>
+            <div class="menu-item" data-page="sales"><span class="menu-icon">💰</span> <span>Ventes</span>
+            </div>
+            <div class="menu-item" data-page="stock"><span class="menu-icon">📦</span> <span>Stock</span>
+            </div>
+            <div class="menu-item" data-page="accounting"><span class="menu-icon">💵</span> <span>Comptabilité</span>
+            </div>
+            <div class="menu-item" data-page="settings"><span class="menu-icon">⚙️</span> <span>Paramètres</span>
+            </div>
+        </div>
+        <div class="main-content">
+            <!-- Dashboard Page -->
+            <div class="page active" id="dashboard">
+                <div class="header">
+                    <h2 id="welcome-message" class="text-2xl font-bold text-gray-800">Bienvenue dans votre espace de
+                        gestion</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🌰</div>
+                        <div class="stat-label">Fruits collectés (kg)</div>
+                        <div class="stat-value" id="total-fruits">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🛢️</div>
+                        <div class="stat-label">Huile produite (L)</div>
+                        <div class="stat-value" id="total-oil">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-label">Chiffre d'affaires (MAD)</div>
+                        <div class="stat-value" id="total-revenue-dashboard">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-label">Bénéfice net (MAD)</div>
+                        <div class="stat-value" id="net-profit">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Évolution mensuelle (Revenus vs Achats)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Notifications récentes</h3>
+                    </div>
+                    <div id="notifications-container">
+                        <p class="text-gray-500">Aucune notification en cours.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Members Page -->
+            <div class="page" id="members">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Gestion des membres</h2>
+                    <button class="btn btn-primary" onclick="openMemberModal()"> <span>➕</span> Ajouter un membre
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="member-search" placeholder="Rechercher par nom ou rôle...">
+                        <select class="form-input" id="member-role-filter" style="max-width: 200px;">
+                            <option value="">Tous les rôles</option>
+                            <option value="Président">Président</option>
+                            <option value="Trésorier">Trésorier</option>
+                            <option value="Secrétaire">Secrétaire</option>
+                            <option value="Membre">Membre</option>
+                            <option value="Productrice">Productrice</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>Téléphone</th>
+                                    <th>Date d'adhésion</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="members-table">
+                                <tr>
+                                    <td colspan="5" class="text-center text-gray-500 py-4">Chargement des membres...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Purchases Page -->
+            <div class="page" id="purchases">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Achats de fruits</h2>
+                    <button class="btn btn-primary" onclick="openPurchaseModal()"> <span>➕</span> Nouvel achat </button>
+                </div>
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="purchase-search"
+                            placeholder="Rechercher par fournisseur...">
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Fournisseur</th>
+                                    <th>Quantité (kg)</th>
+                                    <th>Prix/kg (MAD)</th>
+                                    <th>Total (MAD)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchases-table">
+                                <tr>
+                                    <td colspan="6" class="text-center text-gray-500 py-4">Chargement des achats...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Évolution des achats (Montant total par mois)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="purchasesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Production Page -->
+            <div class="page" id="production">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Production d'huile</h2>
+                    <button class="btn btn-primary" onclick="openProductionModal()"> <span>➕</span> Nouvelle production
+                    </button>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Fruits utilisés (kg)</th>
+                                    <th>Huile produite (L)</th>
+                                    <th>Rendement (%)</th>
+                                    <th>Responsable</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="production-table">
+                                <tr>
+                                    <td colspan="6" class="text-center text-gray-500 py-4">Chargement des productions...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Rendement de production (Huile/Fruits)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Sales Page -->
+            <div class="page" id="sales">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Ventes</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="openSaleModal()"> <span>➕</span> Nouvelle vente </button>
+                        <button class="btn btn-secondary" onclick="exportSales()"> <span>📥</span> Exporter </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="sale-search"
+                            placeholder="Rechercher par client ou facture...">
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>N° Facture</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Produit</th>
+                                    <th>Quantité</th>
+                                    <th>Prix unitaire (MAD)</th>
+                                    <th>Total (MAD)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-table">
+                                <tr>
+                                    <td colspan="8" class="text-center text-gray-500 py-4">Chargement des ventes...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Stock Page -->
+            <div class="page" id="stock">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Gestion du stock</h2>
+                    <button class="btn btn-primary" onclick="openStockModal()"> <span>➕</span> Ajouter un article </button>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Quantité disponible</th>
+                                    <th>Unité</th>
+                                    <th>Seuil minimum</th>
+                                    <th>État</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stock-table">
+                                <tr>
+                                    <td colspan="6" class="text-center text-gray-500 py-4">Chargement du stock...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- Accounting Page -->
+            <div class="page" id="accounting">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Comptabilité</h2>
+                    <button class="btn btn-primary" onclick="openAccountingModal()"> <span>➕</span> Nouvelle opération
+                    </button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💵</div>
+                        <div class="stat-label">Revenus totaux (MAD)</div>
+                        <div class="stat-value" id="total-revenue">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-label">Dépenses totales (MAD)</div>
+                        <div class="stat-value" id="total-expenses">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-label">Solde actuel (MAD)</div>
+                        <div class="stat-value" id="current-balance">0</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" id="accounting-search"
+                            placeholder="Rechercher une opération...">
+                        <select class="form-input" id="accounting-filter" style="max-width: 200px;">
+                            <option value="">Toutes les catégories</option>
+                            <option value="Vente">Vente (Revenu)</option>
+                            <option value="Achat">Achat (Dépense)</option>
+                            <option value="Autre Dépense">Autre Dépense</option>
+                            <option value="Autre Revenu">Autre Revenu</option>
+                        </select>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Catégorie</th>
+                                    <th>Description</th>
+                                    <th>Montant (MAD)</th>
+                                    <th>Type</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounting-table">
+                                <tr>
+                                    <td colspan="6" class="text-center text-gray-500 py-4">Chargement des opérations...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Revenus vs Dépenses (Annuel)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="accountingChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Settings Page -->
+            <div class="page" id="settings">
+                <div class="header">
+                    <h2 class="text-2xl font-bold text-gray-800">Paramètres</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Utilisateur et connexion</h3>
+                    </div>
+                    <p class="mb-4 text-sm text-gray-600">ID Utilisateur Actuel: <code id="current-user-id"
+                            class="font-mono text-xs text-primary-color">Chargement...</code></p>
+                    <div class="form-group"><label class="form-label" for="app-id-display">ID de l'Application</label>
+                        <input type="text" class="form-input bg-gray-100 cursor-not-allowed" id="app-id-display"
+                            readonly>
+                    </div>
+                    <div class="form-group"><label class="form-label" for="language-select">Langue</label>
+                        <select class="form-input" id="language-select">
+                            <option value="fr">Français</option>
+                            <option value="ar">العربية</option>
+                            <option value="en">English</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label" for="currency-select">Devise</label>
+                        <select class="form-input" id="currency-select">
+                            <option value="MAD">Dirham marocain (MAD)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                            <option value="USD">Dollar américain (USD)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="saveSettings()"> <span>💾</span> Enregistrer les
+                        modifications </button>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Informations de l'association</h3>
+                    </div>
+                    <p class="text-sm text-gray-500">Ces informations sont partagées globalement.</p>
+                    <div class="form-group"><label class="form-label" for="association-name">Nom de l'association</label>
+                        <input type="text" class="form-input" id="association-name">
+                    </div>
+                    <div class="form-group"><label class="form-label" for="association-phone">Téléphone</label>
+                        <input type="tel" class="form-input" id="association-phone">
+                    </div>
+                    <div class="form-group"><label class="form-label" for="association-address">Adresse</label>
+                        <input type="text" class="form-input" id="association-address">
+                    </div>
+                    <button class="btn btn-success" onclick="saveGlobalSettings()"> <span>💾</span> Enregistrer les
+                        informations globales </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Member Modal -->
+    <div class="modal" id="member-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="member-modal-title">Ajouter un membre</h3>
+            </div>
+            <form id="member-form" onsubmit="saveMember(event)">
+                <input type="hidden" id="member-id">
+                <div class="form-group"><label class="form-label" for="member-name">Nom complet</label>
+                    <input type="text" class="form-input" id="member-name" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="member-role">Rôle</label>
+                    <select class="form-input" id="member-role" required>
+                        <option value="">Sélectionner un rôle</option>
+                        <option value="Président">Président</option>
+                        <option value="Trésorier">Trésorier</option>
+                        <option value="Secrétaire">Secrétaire</option>
+                        <option value="Membre">Membre</option>
+                        <option value="Productrice">Productrice</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" for="member-phone">Téléphone</label>
+                    <input type="tel" class="form-input" id="member-phone" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="member-date">Date d'adhésion</label>
+                    <input type="date" class="form-input" id="member-date" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('member-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div class="modal" id="purchase-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nouvel achat de fruits</h3>
+            </div>
+            <form id="purchase-form" onsubmit="savePurchase(event)">
+                <input type="hidden" id="purchase-id">
+                <div class="form-group"><label class="form-label" for="purchase-date">Date</label>
+                    <input type="date" class="form-input" id="purchase-date" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="purchase-supplier">Fournisseur</label>
+                    <input type="text" class="form-input" id="purchase-supplier" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="purchase-quantity">Quantité (kg)</label>
+                    <input type="number" class="form-input" id="purchase-quantity" step="0.01" required min="0.01">
+                </div>
+                <div class="form-group"><label class="form-label" for="purchase-price">Prix par kg (MAD)</label>
+                    <input type="number" class="form-input" id="purchase-price" step="0.01" required min="0.01">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('purchase-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Production Modal -->
+    <div class="modal" id="production-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nouvelle production</h3>
+            </div>
+            <form id="production-form" onsubmit="saveProduction(event)">
+                <input type="hidden" id="production-id">
+                <div class="form-group"><label class="form-label" for="production-date">Date</label>
+                    <input type="date" class="form-input" id="production-date" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="production-fruits">Fruits utilisés (kg)</label>
+                    <input type="number" class="form-input" id="production-fruits" step="0.01" required min="0">
+                    <p class="text-xs text-gray-500 mt-1">Stock de fruits actuel: <span
+                            id="fruit-stock-info">0</span> kg</p>
+                </div>
+                <div class="form-group"><label class="form-label" for="production-oil">Huile produite (L)</label>
+                    <input type="number" class="form-input" id="production-oil" step="0.01" required min="0.01">
+                </div>
+                <div class="form-group"><label class="form-label" for="production-responsible">Responsable</label>
+                    <input type="text" class="form-input" id="production-responsible" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('production-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sale Modal -->
+    <div class="modal" id="sale-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nouvelle vente</h3>
+            </div>
+            <form id="sale-form" onsubmit="saveSale(event)">
+                <input type="hidden" id="sale-id">
+                <div class="form-group"><label class="form-label" for="sale-invoice">N° Facture</label>
+                    <input type="text" class="form-input" id="sale-invoice" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="sale-date">Date</label>
+                    <input type="date" class="form-input" id="sale-date" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="sale-client">Client</label>
+                    <input type="text" class="form-input" id="sale-client" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="sale-product">Produit</label>
+                    <select class="form-input" id="sale-product" required>
+                        <option value="Huile d'Argan (Alimentaire)">Huile d'Argan (Alimentaire)</option>
+                        <option value="Huile d'Argan (Cosmétique)">Huile d'Argan (Cosmétique)</option>
+                        <option value="Amandes d'Argan">Amandes d'Argan</option>
+                        <option value="Autres">Autres</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" for="sale-quantity">Quantité</label>
+                    <input type="number" class="form-input" id="sale-quantity" step="0.01" required min="0.01">
+                    <p class="text-xs text-gray-500 mt-1">Quantité en stock: <span id="oil-stock-info">0</span> L
+                        (Huile)</p>
+                </div>
+                <div class="form-group"><label class="form-label" for="sale-unit-price">Prix unitaire (MAD)</label>
+                    <input type="number" class="form-input" id="sale-unit-price" step="0.01" required min="0.01">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('sale-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Stock Modal -->
+    <div class="modal" id="stock-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="stock-modal-title">Ajouter/Modifier un article en stock</h3>
+            </div>
+            <form id="stock-form" onsubmit="saveStock(event)">
+                <input type="hidden" id="stock-id">
+                <div class="form-group"><label class="form-label" for="stock-item">Article</label>
+                    <input type="text" class="form-input" id="stock-item" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="stock-available">Quantité disponible</label>
+                    <input type="number" class="form-input" id="stock-available" step="0.01" required min="0">
+                </div>
+                <div class="form-group"><label class="form-label" for="stock-unit">Unité</label>
+                    <select class="form-input" id="stock-unit" required>
+                        <option value="kg">Kilogrammes (kg)</option>
+                        <option value="L">Litres (L)</option>
+                        <option value="unité">Unité</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" for="stock-minimum">Seuil minimum</label>
+                    <input type="number" class="form-input" id="stock-minimum" step="0.01" required min="0">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('stock-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Accounting Modal -->
+    <div class="modal" id="accounting-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nouvelle opération</h3>
+            </div>
+            <form id="accounting-form" onsubmit="saveAccounting(event)">
+                <input type="hidden" id="accounting-id">
+                <div class="form-group"><label class="form-label" for="accounting-date">Date</label>
+                    <input type="date" class="form-input" id="accounting-date" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="accounting-category">Catégorie</label>
+                    <select class="form-input" id="accounting-category" required>
+                        <option value="">Sélectionner une catégorie</option>
+                        <option value="Vente">Vente (Revenu)</option>
+                        <option value="Achat">Achat (Dépense)</option>
+                        <option value="Salaire/Rémunération">Salaire/Rémunération (Dépense)</option>
+                        <option value="Frais de fonctionnement">Frais de fonctionnement (Dépense)</option>
+                        <option value="Subvention">Subvention (Revenu)</option>
+                        <option value="Autre Dépense">Autre Dépense</option>
+                        <option value="Autre Revenu">Autre Revenu</option>
+                    </select>
+                </div>
+                <div class="form-group"><label class="form-label" for="accounting-description">Description</label>
+                    <input type="text" class="form-input" id="accounting-description" required>
+                </div>
+                <div class="form-group"><label class="form-label" for="accounting-amount">Montant (MAD)</label>
+                    <input type="number" class="form-input" id="accounting-amount" step="0.01" required min="0.01">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('accounting-modal')">Annuler</button>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Message Box for Alert/Confirm -->
+    <div class="modal" id="message-box-modal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="message-box-title">Message</h3>
+            <p id="message-box-text" class="my-4"></p>
+            <div class="form-actions" id="message-box-actions">
+                <!-- Buttons are added by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+</body>
+
+</html>
