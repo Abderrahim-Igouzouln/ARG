@@ -14,12 +14,12 @@
     let userId = 'loading'; // L'UID de l'utilisateur ou un ID temporaire
     let isAuthReady = false;
     // Données globales
-    let members = [];
-    let purchases = [];
-    let production = [];
-    let sales = [];
-    let stock = [];
-    let accounting = [];
+    let members = JSON.parse(localStorage.getItem("members")) || [];
+    let purchases = JSON.parse(localStorage.getItem("purchases")) || [];
+    let production = JSON.parse(localStorage.getItem("production")) || [];
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
+    let stock = JSON.parse(localStorage.getItem("stock")) || [];
+    let accounting = JSON.parse(localStorage.getItem("accounting")) || [];
     // Graphiques
     let monthlyChartInstance = null;
     let purchasesChartInstance = null;
@@ -228,9 +228,50 @@
             });
         }
     }
-    // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// +++++++++++++++++++++++++++    
-    // Members
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Members
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (!localStorage.getItem("members")) {
+        const exampleMembers = [
+            { id: Date.now().toString() + "1", name: "Fatima Ait Lahcen", role: "Président", phone: "0612345678", date: "2020-05-14" },
+            { id: Date.now().toString() + "2", name: "Mohamed El Amrani", role: "Trésorier", phone: "0678123456", date: "2021-09-03" },
+            { id: Date.now().toString() + "3", name: "Amina Bouhssous", role: "Secrétaire", phone: "0654872136", date: "2019-11-21" },
+            { id: Date.now().toString() + "4", name: "Khadija Ouardi", role: "Membre", phone: "0609876543", date: "2022-02-10" },
+            { id: Date.now().toString() + "5", name: "Zahra El Khettabi", role: "Productrice", phone: "0645783021", date: "2023-01-22" },
+            { id: Date.now().toString() + "6", name: "Youssef Benjelloun", role: "Membre", phone: "0623456789", date: "2020-08-30" }
+        ];
+
+        localStorage.setItem("members", JSON.stringify(exampleMembers));
+    }
+    function saveLocalMembers() {localStorage.setItem("members", JSON.stringify(members));}
+    function loadMembers() {
+        const tbody = document.getElementById('members-table');
+        tbody.innerHTML = "";
+
+        if (members.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 py-4">Aucun membre trouvé</td></tr>`;
+            return;
+        }
+
+        members.forEach(m => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${m.name}</td>
+                    <td><span class="px-2 py-1 text-xs font-semibold rounded-full bg-secondary-color text-white">${m.role}</span></td>
+                    <td>${m.phone}</td>
+                    <td>${m.date}</td>
+                    <td>
+                        <button class="text-primary-color hover:text-amber-700" onclick="editMember('${m.id}')">✏️</button>
+                        <button class="text-red-600 hover:text-red-800" onclick="deleteMemberFromTable('${m.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    loadMembers();
+    // --- EXEMPLES PAR DÉFAUT --- fin
+
     // --- RENDERING DES PAGES ---
     function renderMembers() {
         const tbody = document.getElementById('members-table');
@@ -242,7 +283,7 @@
         tbody.innerHTML = filtered.map(m => `
             <tr>
                 <td class="font-medium">${m.name}</td>
-                <td><span class="px-2 py-1 text-xs font-semibold rounded-full bg-secondary-color text-white">${m.role}</span></td>
+                <td><span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">${m.role}</span></td>
                 <td>${m.phone}</td>
                 <td>${formatDate(m.date)}</td>
                 <td class="actions-cell">
@@ -255,7 +296,6 @@
             tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Aucun membre trouvé.</td></tr>';
         }
     }
-
     // --- CRUD : SAVE (Ajout/Modification) ---
     window.saveMember = function (event) {
                 event.preventDefault();
@@ -296,7 +336,6 @@
         document.getElementById('member-modal-title').textContent = id ? 'Modifier le membre' : 'Ajouter un membre';
         openModal('member-modal');
     }
-
     window.editMember = function (id) {
         const member = members.find(m => m.id === id);
         if (member) {
@@ -308,7 +347,6 @@
             openMemberModal(id);
         }
     }
-
     window.deleteMemberFromTable = async function(id) {
         const member = members.find(m => m.id === id);
         if (!member) return;
@@ -330,8 +368,24 @@
             await deleteDocument('members', id, member.name);
         }
     }   
-// +++++++++++++++++++++++++++    
-    // Achats
+        // --- INITIAL LOAD ---
+renderMembers();
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Achats
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (purchases.length === 0) {
+        purchases = [
+            { id: Date.now().toString() + "1", date: "2025-01-10", supplier: "Fournisseur A", quantity: 50, price: 20, total: 1000 },
+            { id: Date.now().toString() + "2", date: "2025-02-15", supplier: "Fournisseur B", quantity: 30, price: 25, total: 750 },
+            { id: Date.now().toString() + "3", date: "2025-03-20", supplier: "Fournisseur C", quantity: 40, price: 22, total: 880 },
+            { id: Date.now().toString() + "4", date: "2025-04-05", supplier: "Fournisseur D", quantity: 60, price: 18, total: 1080 },
+            { id: Date.now().toString() + "5", date: "2025-05-12", supplier: "Fournisseur E", quantity: 25, price: 30, total: 750 },
+            { id: Date.now().toString() + "6", date: "2025-06-18", supplier: "Fournisseur F", quantity: 70, price: 19, total: 1330 }
+        ];
+        localStorage.setItem("purchases", JSON.stringify(purchases));
+    }
+    function saveLocalPurchases() {localStorage.setItem("purchases", JSON.stringify(purchases));}
+    // --- EXEMPLES PAR DÉFAUT --- fin
+
     // --- OPEN MODAL (ADD / EDIT) ---
     window.openPurchaseModal = function (id = null) {
         document.getElementById('purchase-form').reset();
@@ -435,11 +489,24 @@
             deleteDocument('purchases', id, `Achat du ${formatDate(purchase.date)}`);
         }
     }
+    // --- INITIAL LOAD ---
+renderPurchases();
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Production
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (production.length === 0) {
+        production = [
+            { id: Date.now().toString() + "1", date: "2025-01-15", fruitsUsed: 100, oilProduced: 18, responsible: "Fatima" },
+            { id: Date.now().toString() + "2", date: "2025-02-20", fruitsUsed: 80, oilProduced: 15, responsible: "Mohamed" },
+            { id: Date.now().toString() + "3", date: "2025-03-25", fruitsUsed: 120, oilProduced: 22, responsible: "Amina" },
+            { id: Date.now().toString() + "4", date: "2025-04-10", fruitsUsed: 90, oilProduced: 17, responsible: "Khadija" },
+            { id: Date.now().toString() + "5", date: "2025-05-18", fruitsUsed: 110, oilProduced: 20, responsible: "Zahra" },
+            { id: Date.now().toString() + "6", date: "2025-06-22", fruitsUsed: 95, oilProduced: 16, responsible: "Youssef" }
+        ];
+        localStorage.setItem("production", JSON.stringify(production));
+    }
+    function saveLocalProduction() {localStorage.setItem("production", JSON.stringify(production));}
+    // --- EXEMPLES PAR DÉFAUT --- fin
 
-
-
-// +++++++++++++++++++++++++++    
-    // Production
     // --- OPEN MODAL (ADD / EDIT) ---
     window.openProductionModal = function (id = null) {
         document.getElementById('production-form').reset();
@@ -486,7 +553,6 @@
 
         openProductionModal(id);
     }
-
     // --- SAVE (Add/Modify) ---
     window.saveProduction = async function (event) {
         event.preventDefault();
@@ -536,7 +602,6 @@
 
         await saveDocument('stock', oilStockData, oilStockItem ? oilStockItem.id : null, null);
     }
-
     // --- DELETE WITH CONFIRMATION ---
     window.confirmDeleteProduction = async function(id) {
         const prod = production.find(p => p.id === id);
@@ -554,10 +619,23 @@
             deleteDocument('production', id, `Production du ${formatDate(prod.date)}`);
         }
     }
+    // --- INITIAL LOAD ---
+    renderProduction();
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Ventes
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (sales.length === 0) {
+        sales = [
+            { id: Date.now().toString()+"1", invoiceNumber: "F001", date: "2025-01-10", client: "Client A", product: "Huile d'Argan (Alimentaire)", quantity: 5, unitPrice: 250, total: 1250 },
+            { id: Date.now().toString()+"2", invoiceNumber: "F002", date: "2025-02-15", client: "Client B", product: "Savon Argan", quantity: 10, unitPrice: 50, total: 500 },
+            { id: Date.now().toString()+"3", invoiceNumber: "F003", date: "2025-03-20", client: "Client C", product: "Huile d'Argan (Cosmétique)", quantity: 3, unitPrice: 300, total: 900 },,
+            { id: Date.now().toString()+"4", invoiceNumber: "F004", date: "2025-04-05", client: "Client D", product: "Huile d'Argan (Alimentaire)", quantity: 7, unitPrice: 240, total: 1680 },,
+            { id: Date.now().toString()+"5", invoiceNumber: "F005", date: "2025-05-12", client: "Client E", product: "Savon Argan", quantity: 15, unitPrice: 45, total: 675 },
+        ];
+        localStorage.setItem("sales", JSON.stringify(sales));
+    }
+    function saveLocalSales() {localStorage.setItem("sales", JSON.stringify(sales));}
+    // --- EXEMPLES PAR DÉFAUT --- fin
 
-
-// +++++++++++++++++++++++++++    
-    // Ventes
     // --- OPEN MODAL (ADD / EDIT) ---
     window.openSaleModal = function (id = null) {
         document.getElementById('sale-form').reset();
@@ -591,7 +669,6 @@
             `).join('')
             : '<tr><td colspan="8" class="text-center text-gray-500 py-4">Aucune vente trouvée.</td></tr>';
     }
-
     // --- LOAD DATA FOR EDIT ---
     window.editSale = function (id) {
         const sale = sales.find(s => s.id === id);
@@ -607,7 +684,6 @@
 
         openSaleModal(id);
     }
-
     // --- SAVE SALE ---
     window.saveSale = async function (event) {
         event.preventDefault();
@@ -670,7 +746,6 @@
             }, null, null);
         }
     }
-
     // --- DELETE WITH CONFIRM ---
     window.confirmDeleteSale = async function(id) {
         const sale = sales.find(s => s.id === id);
@@ -688,10 +763,24 @@
             deleteDocument('sales', id, `Vente Facture ${sale.invoiceNumber}`);
         }
     }
+    // --- INITIAL LOAD ---
+    renderSales();
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Stock
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (stock.length === 0) {
+        stock = [
+            { id: Date.now().toString()+"1", item: "Huile d'Argan (Alimentaire)", available: 50, unit: "L", minimum: 10 },
+            { id: Date.now().toString()+"2", item: "Savon Argan", available: 200, unit: "unité", minimum: 50 },
+            { id: Date.now().toString()+"3", item: "Fruits d'Argan", available: 300, unit: "kg", minimum: 100 },
+            { id: Date.now().toString()+"4", item: "Emballages", available: 500, unit: "unité", minimum: 150 },
+            { id: Date.now().toString()+"5", item: "Étiquettes", available: 1000, unit: "unité", minimum: 200 },
+            { id: Date.now().toString()+"6", item: "Huiles Essentielles", available: 20, unit: "L", minimum: 5 }
+        ];
+        localStorage.setItem("stock", JSON.stringify(stock));
+    }
+    function saveLocalStock() {localStorage.setItem("stock", JSON.stringify(stock));}
+    // --- EXEMPLES PAR DÉFAUT --- fin
 
-
-// +++++++++++++++++++++++++++    
-    // Stock 
     // --- OPEN MODAL (ADD / EDIT) ---
     window.openStockModal = function (id = null) {
         document.getElementById('stock-form').reset();
@@ -785,9 +874,22 @@
             deleteDocument('stock', id, item.item);
         }
     }
-
-// +++++++++++++++++++++++++++
-    // Comptabilité
+    // --- INITIAL LOAD ---
+    renderStock();
+// +++++++++++++++++++++++++++ Comptabilité
+    // --- EXEMPLES PAR DÉFAUT --- début
+    if (accounting.length === 0) {
+        accounting = [
+            { id: Date.now().toString() + "1", date: "2025-01-01", category: "Vente", description: "Vente N°001", amount: 1500, timestamp: Date.now() },
+            { id: Date.now().toString() + "2", date: "2025-01-02", category: "Achat", description: "Achat de fruits", amount: 700, timestamp: Date.now() },
+            { id: Date.now().toString() + "3", date: "2025-01-03", category: "Revenu Divers", description: "Subvention gouvernementale", amount: 3000, timestamp: Date.now() },
+            { id: Date.now().toString() + "4", date: "2025-01-04", category: "Dépense Divers", description: "Frais de transport", amount: 400, timestamp: Date.now() }
+        ];
+        localStorage.setItem("accounting", JSON.stringify(accounting));
+    }
+    function saveLocalAccounting() {localStorage.setItem("accounting", JSON.stringify(accounting));}
+    // --- EXEMPLES PAR DÉFAUT --- fin
+    
     // --- RENDERING DES PAGES ---
     window.openAccountingModal = function (id = null) {
         document.getElementById('accounting-form').reset();
@@ -884,6 +986,7 @@
 
         // Save Firebase
         saveDocument('accounting', data, data.id, null);
+        saveLocalAccounting();
     };
     // --- EDIT ---
     window.editAccounting = function (id) {
@@ -914,14 +1017,15 @@
             renderAccounting();
             deleteDocument('accounting', id, `Opération du ${formatDate(op.date)}`);
         }
+        saveLocalAccounting();
     };
-
-
+    // --- INITIAL LOAD ---
+    renderAccounting();
+    
 // +++++++++++++++++++++++++++
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     // --- CRUD : SAVE (Ajout/Modification) ---
-    /**
-     * Fonction générique pour sauvegarder un document (ajout ou mise à jour).
-     */
     async function saveDocument(collectionName, data, id, modalId) {
         try {
             if (id) {
@@ -1211,4 +1315,9 @@
     }
 
 
+
+
+
+
+    
     
