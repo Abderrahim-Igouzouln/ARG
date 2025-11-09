@@ -269,7 +269,6 @@
             `;
         });
     }
-    loadMembers();
     // --- EXEMPLES PAR DÉFAUT --- fin
 
     // --- RENDERING DES PAGES ---
